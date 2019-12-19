@@ -377,9 +377,13 @@ bool RooUtil::Looper<TREECLASS>::nextTree()
         error( "fileIter not set but you are trying to access the next file", __FUNCTION__ );
 
     // Get the TChainElement from TObjArrayIter.
+    std::cout << "KARRI file" << fileIter << std::endl;
     // If no more to run over, Next returns 0.
     TChainElement* chainelement = ( TChainElement* ) fileIter->Next();
+		std::cout << "KARRI " << chainelement << std::endl;
+                std::cout << "KARRI " << chainelement->GetTitle() << std::endl;
 
+                print("KARRI checking for chain element", __FUNCTION__);
     if ( chainelement )
     {
         // If doskim is true and if this is the very first file being opened in the TChain,
@@ -394,23 +398,29 @@ bool RooUtil::Looper<TREECLASS>::nextTree()
         //     tfile->Close();
 
         // Open up a new file
+                print("KARRI opening file", __FUNCTION__);
+                std::cout << "KARRI " << chainelement->GetTitle() << std::endl;
         tfile = TFile::Open( chainelement->GetTitle() );
         // Get the ttree
+        	std::cout << "KARRI got file" << std::endl;
         ttree = ( TTree* ) tfile->Get( tchain->GetName() );
+                std::cout << "KARRI " << tchain->GetName() << std::endl;
 
         // If an eventindexmap has a key for this file then set the TEventList for this TTree
-        // std::cout <<  " chainelement->GetTitle(): " << chainelement->GetTitle() <<  std::endl;
-        // std::cout <<  " eventindexmap.hasEventList(chainelement->GetTitle()): " << eventindexmap.hasEventList(chainelement->GetTitle()) <<  std::endl;
-        if ( eventindexmap.hasEventList( chainelement->GetTitle() ) )
-        {
-            // std::cout << chainelement->GetTitle() << std::endl;
-            teventlist = eventindexmap.getEventList( chainelement->GetTitle() );
-            ttree->SetEventList( teventlist );
-        }
-        else
-        {
+        std::cout <<  " chainelement->GetTitle(): " << chainelement->GetTitle() <<  std::endl;
+	//std::cout << " event map index " << eventindexmap << std::endl;
+        //std::cout <<  " eventindexmap.hasEventList(chainelement->GetTitle()): " << eventindexmap.hasEventList(chainelement->GetTitle()) <<  std::endl;
+        //if ( eventindexmap.hasEventList( chainelement->GetTitle() ) )
+        //{
+        //   std::cout << chainelement->GetTitle() << std::endl;
+        //    teventlist = eventindexmap.getEventList( chainelement->GetTitle() );
+        //    ttree->SetEventList( teventlist );
+        //}
+        //else
+        //{
+		std::cout << " no eventList" << std::endl;
             teventlist = 0;
-        }
+        //}
 
         if ( !ttree )
             error( "TTree is null!??", __FUNCTION__ );
@@ -459,7 +469,7 @@ bool RooUtil::Looper<TREECLASS>::nextTree()
     {
         // Announce that we are done with this chain
         //        print("");
-        //        print("Done with all trees in this chain", __FUNCTION__);
+                print("Done with all trees in this chain", __FUNCTION__);
         return false;
     }
 }
@@ -559,20 +569,22 @@ bool RooUtil::Looper<TREECLASS>::nextEvent()
     // If no tree it means this is the beginning of the loop.
     if ( !ttree )
     {
-        //        std::cout << " I think this is the first tree " << std::endl;
+                std::cout << " I think this is the first tree " << std::endl;
         // Load the next tree if it returns true, then proceed to next event in tree.
         while ( nextTree() )
         {
+                std::cout << " opened the first tree " << std::endl;
             // If the next event in tree was successfully loaded return true, that it's good.
             if ( nextEventInTree() )
             {
-                //                std::cout << " I think this is the first event in first tree" << std::endl;
+                                std::cout << " I think this is the first event in first tree" << std::endl;
                 // Set the boolean that a new file opened for this event
                 isnewfileopened = true;
                 return true;
             }
             // If the first event in this tree was not good, continue to the next tree
             else
+                                std::cout << " not the first event in first tree" << std::endl;
                 continue;
         }
 
@@ -587,6 +599,7 @@ bool RooUtil::Looper<TREECLASS>::nextEvent()
     // If tree exists, it means that we're in the middle of a loop
     else
     {
+                std::cout << " not the first tree " << std::endl;
         // If next event is successfully loaded proceed.
         if ( nextEventInTree() )
         {
